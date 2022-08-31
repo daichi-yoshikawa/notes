@@ -7,7 +7,7 @@ $ docker images ps -a
 $ docker ps -aq <<< Show list of container id
 ```
 
-** Show volume and network
+** Show volume and network **
 ```
 $ docker volume ls [-f dangling=true] <<< Show volumes in use
 $ docker network ls [--no-trunc] <<< --no-trunc: Not truncate network id
@@ -20,7 +20,7 @@ $ docker container prune [-f] <<< -f: Skip confirmation
 
 ```
 
-** Remove images **<br>
+** Remove images **
 May be better to remove containers first before removing images.
 ```
 $ docker rmi [-f] <image id>
@@ -73,12 +73,12 @@ $ docker run -d --rm -it -v .:/root --network host --name my_app_container selen
 ```
 ** Note **: What is a detached mode(running in the background)? By default, you have to wait until the command finishes when you run some command in a terminal. It's called "running the command in foreground" or "foreground process". You can interact with the foreground process but you can't run the other command while you're waiting for the end. Running in the background is the opposite to it obviously. You can't interact with the background process but you can run the other command right after you launched the foreground process.
 
-### Stop container
+** Stop container **
 ```
 $ docker stop <container name or container id>
 ```
 
-### Get in terminal on the running container
+** Get in terminal on the running container **
 ```
 $ docker exec -it <container name> /bin/bash
 $ docker exec -it my_app_container /bin/bash
@@ -117,3 +117,58 @@ WORKSPACE /root <- You can change directory
 
 CMD tail -f /dev/null <- To persistent container
 ```
+
+## docker-compose
+
+### docker-compose sample
+```
+version: <version>
+  services:
+    my_webapp:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: my_webapp_container
+      image: ubuntu:20.04
+      ports:
+        - "<host port>:<container port>"
+      volumes:
+        - $PWD/<host dir abs path>:<container dir abs path>
+      [network_mode: "host"]
+      command: tail -f /dev/null
+    postgres:
+      container_name: my_postgres
+      image: postgres:12.4
+      restart: always
+      environment:
+        - POSTGRES_DB=$POSTGRES_DB_IN_DOT_ENV
+        - POSTGRES_USER=$POSTGRES_USER_IN_DOT_ENV
+        - POSTGRES_PASSWORD=$POSTGRES_PASSWORD_IN_DOT_ENV
+      ports:
+        - <host port>:5432
+      volumes:
+        - <host dir abs path>:<container dir abs path>
+```
+
+### docker-compose commands
+```
+$ docker-compose up -d --rm --name=my_webapp
+$ docker-compose run -d --rm my_webapp
+$ docker-compose start -d --rm my_webapp
+```
+
+** Difference between up, run and start **
+* docker-compose up: Start or restart all the services defined in docker-compose.yml.
+* docker-compose run: Requires service name and it only starts it. Similar to "docker run -it".
+* docker-compose start: Restart containers which were previously created, but were stopped. Never creates new containers.
+
+```
+$ docker-compose down <- Stop and remove containers, networks, volumes and images created by docker-compose up.
+$ docker-compose kill <- Stop containers by sending a SIGKILL signal.
+$ docker-compose stop <- Do not remove containers, so they can be started again with docker-compose start.
+```
+
+* pause/unpause -> hibernate
+* kill -> soft shut-down
+* stop/start/restart -> hard shut-down
+* down/up/create -> factory reset
