@@ -153,9 +153,10 @@ version: <version>
 ### docker-compose commands
 ```
 $ docker-compose up -d --rm --name=my_webapp
-$ docker-compose run -d --rm my_webapp
+$ docker-compose run -d --service-ports --rm my_webapp <- --service-ports enable ports(See below)
 $ docker-compose start -d --rm my_webapp
 ```
+**Note:** [By default no ports will be created in case they collide with alread opened ports](https://github.com/docker/compose/issues/1256). In other words, docker-compose is not a complete equivalent of docker run and you need to use --service-ports option to open ports.
 
 ** Difference between up, run and start **
 * docker-compose up: Start or restart all the services defined in docker-compose.yml.
